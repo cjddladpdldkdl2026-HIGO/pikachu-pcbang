@@ -1,0 +1,10 @@
+# GitHub·Vercel 에는 발표에 필요한 파일만 올림 (나머지는 이 컴퓨터에만)
+/*
+!/.gitignore
+!/vercel.json
+!/pakachu-pcbang.html
+!/haksaengdo.html
+!/fonts/
+!/images/
+!/videos/
+!/fx/

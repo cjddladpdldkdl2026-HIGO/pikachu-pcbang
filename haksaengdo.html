@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>학생도 (우리들의 학교 생활 도우미)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+:root{
+  --page:#E8EBFF; --app:#F5F6FF; --surface:#FFFFFF; --ink:#262A4F; --sub:#6E7299; --line:#E3E5F4;
+  --primary:#5B6CFF; --primary-ink:#FFFFFF; --primary-soft:#E4E7FF;
+  --butter:#FFD64F; --butter-soft:#FFF3C9; --mint:#22A87C; --mint-soft:#DAF5EC;
+  --coral:#F24E4E; --coral-soft:#FFE2E2; --frame:#262A4F; --shadow:rgba(60,70,160,.28);
+  --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#13152A; --app:#1B1E38; --surface:#262A49; --ink:#EEF0FF; --sub:#A4A8CE; --line:#363A63;
+    --primary:#8794FF; --primary-ink:#13152A; --primary-soft:#2F3568;
+    --butter:#FFD64F; --butter-soft:#4A4220; --mint:#5BD8AE; --mint-soft:#1F4238;
+    --coral:#FF8484; --coral-soft:#4A2626; --frame:#05060F; --shadow:rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#13152A; --app:#1B1E38; --surface:#262A49; --ink:#EEF0FF; --sub:#A4A8CE; --line:#363A63;
+  --primary:#8794FF; --primary-ink:#13152A; --primary-soft:#2F3568;
+  --butter:#FFD64F; --butter-soft:#4A4220; --mint:#5BD8AE; --mint-soft:#1F4238;
+  --coral:#FF8484; --coral-soft:#4A2626; --frame:#05060F; --shadow:rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--page);font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+.stage{height:100%;display:grid;place-items:center;padding:20px}
+.phone{width:390px;max-width:100%;height:min(844px,100%);background:var(--app);border-radius:50px;border:11px solid var(--frame);position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 80px -30px var(--shadow)}
+.statusbar{flex:none;height:46px;display:flex;justify-content:space-between;align-items:center;padding:4px 28px 0;font-weight:600;font-size:14px;position:relative}
+.statusbar::after{content:"";position:absolute;left:50%;top:9px;width:112px;height:30px;border-radius:20px;background:#05060F;transform:translateX(-50%)}
+.statusbar .sig{letter-spacing:1px;font-size:12px}
+@media (max-width:500px){
+  body{background:var(--app)}
+  .stage{padding:0}
+  .phone{width:100%;height:100%;border:0;border-radius:0;box-shadow:none}
+  .statusbar{display:none}
+}
+
+.appbar{flex:none;height:56px;display:flex;align-items:center;gap:6px;padding:0 12px 0 16px}
+.appbar h1{font-family:var(--display);font-weight:400;font-size:21px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo{display:flex;align-items:center;gap:6px;flex:1}
+.logo svg{width:34px;height:34px}
+.logo b{font-family:var(--display);font-weight:400;font-size:24px;color:var(--primary)}
+.iconbtn{width:40px;height:40px;border:0;border-radius:14px;background:transparent;display:grid;place-items:center;font-size:19px;position:relative}
+.iconbtn .badge{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--coral);border:2px solid var(--app)}
+.back{margin-left:-8px;font-size:22px;font-weight:700}
+
+.screens{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:4px 16px 28px;display:none;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:block;animation:slidein .26s ease}
+@keyframes slidein{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 4px 12px}
+.tab{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px;color:var(--sub)}
+.tab .ic{font-size:21px;filter:grayscale(1);opacity:.5;transition:transform .2s}
+.tab.on{color:var(--primary);font-weight:700}
+.tab.on .ic{filter:none;opacity:1;transform:translateY(-2px)}
+
+/* home */
+.hero{background:var(--primary);color:var(--primary-ink);border-radius:26px;padding:18px 18px 16px;position:relative;overflow:hidden;min-height:150px}
+.hero::before{content:"";position:absolute;right:-40px;bottom:-60px;width:190px;height:190px;border-radius:50%;background:rgba(255,255,255,.14)}
+.hero small{font-size:12px;opacity:.85}
+.hero h2{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.3;margin:4px 0 12px;max-width:62%}
+.hero .next{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.2);border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;position:relative}
+.hero .mascot{position:absolute;right:10px;top:18px;width:112px;height:112px;animation:float 3.2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0 4px}
+.feat{background:var(--surface);border:0;border-radius:18px;padding:12px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px;font-weight:500}
+.feat .ic{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;font-size:21px}
+.feat:active{transform:scale(.96)}
+.c1{background:var(--primary-soft)} .c2{background:var(--butter-soft)} .c3{background:var(--mint-soft)} .c4{background:var(--coral-soft)}
+
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:22px 2px 10px}
+.sec h3{font-family:var(--display);font-weight:400;font-size:18px;margin:0}
+.more{border:0;background:none;color:var(--sub);font-size:12px;padding:4px}
+
+.row{background:var(--surface);border-radius:16px;padding:12px 14px;display:flex;gap:12px;align-items:center;margin-bottom:8px;border:0;width:100%;text-align:left}
+.row .t{font-weight:600;font-size:14px;line-height:1.4}
+.row .m{font-size:12px;color:var(--sub);margin-top:2px}
+.row .grow{flex:1;min-width:0}
+.dday{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-family:var(--display);font-size:15px;background:var(--primary-soft);color:var(--primary)}
+.tag{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;font-weight:600;background:var(--primary-soft);color:var(--primary)}
+.tag.coral{background:var(--coral-soft);color:var(--coral)} .tag.mint{background:var(--mint-soft);color:var(--mint)}
+.tag.butter{background:var(--butter-soft);color:#9A7400} .tag.gray{background:var(--line);color:var(--sub)}
+:root[data-theme="dark"] .tag.butter{color:var(--butter)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.butter{color:var(--butter)}}
+.newdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--coral);margin-left:5px;vertical-align:middle}
+
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini{background:var(--surface);border-radius:18px;padding:14px;border:0;text-align:left}
+.mini .lbl{font-size:12px;color:var(--sub)}
+.mini .big{font-family:var(--display);font-size:20px;margin:6px 0 2px;line-height:1.25}
+.mini .s{font-size:12px;color:var(--sub);line-height:1.4}
+.mini.parking .big{color:var(--mint)}
+
+/* shared */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;margin-bottom:8px}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--line);border-radius:14px;padding:4px;gap:4px;margin-bottom:14px}
+.seg button{border:0;background:transparent;border-radius:10px;padding:9px 4px;font-weight:600;font-size:14px;color:var(--sub)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card{background:var(--surface);border-radius:20px;padding:15px;margin-bottom:10px}
+.btn{width:100%;border:0;border-radius:14px;padding:13px;font-weight:700;font-size:15px;background:var(--primary);color:var(--primary-ink)}
+.btn.done{background:var(--mint-soft);color:var(--mint)}
+.btn.off{background:var(--line);color:var(--sub);cursor:default}
+.btn.danger{background:var(--coral);color:#fff}
+.hint{font-size:12px;color:var(--sub);line-height:1.5}
+
+/* notices */
+.notice{display:block}
+.notice .head{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.notice .date{margin-left:auto;font-size:12px;color:var(--sub)}
+.notice .body{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;line-height:1.65;color:var(--sub)}
+.notice.open .body{display:block}
+
+/* calendar */
+.cal{background:var(--surface);border-radius:22px;padding:14px 12px}
+.calhead{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px}
+.calhead b{font-family:var(--display);font-weight:400;font-size:20px}
+.calhead button{border:0;background:var(--app);width:34px;height:34px;border-radius:12px;font-size:16px}
+.week,.days{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.week span{font-size:11px;color:var(--sub);padding:4px 0}
+.week span:first-child,.d.sun{color:var(--coral)}
+.d{aspect-ratio:1;border:0;background:none;border-radius:13px;font-size:14px;position:relative}
+.d.today{box-shadow:inset 0 0 0 2px var(--primary);font-weight:700}
+.d.sel{background:var(--primary);color:var(--primary-ink)!important}
+.d .dot{position:absolute;bottom:5px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
+.d.sel .dot{background:var(--primary-ink)!important}
+.evlist{margin-top:14px}
+.evlist .row{border-left:5px solid var(--primary)}
+
+/* recruit */
+.meter{height:7px;border-radius:9px;background:var(--line);overflow:hidden;margin:10px 0 6px}
+.meter i{display:block;height:100%;background:var(--butter);border-radius:9px}
+.rc-top{display:flex;justify-content:space-between;align-items:center}
+.rc-title{font-weight:700;font-size:16px;margin:8px 0 4px}
+.rc-meta{font-size:12px;color:var(--sub);line-height:1.6}
+.rc-count{font-size:12px;font-weight:600;margin-bottom:12px}
+.fab{position:absolute;right:18px;bottom:16px;border:0;border-radius:999px;padding:13px 18px;background:var(--ink);color:var(--surface);font-weight:700;font-size:14px;box-shadow:0 10px 20px -8px var(--shadow);display:none;z-index:3}
+.fab.show{display:block}
+
+/* campus */
+.meal .where{display:flex;justify-content:space-between;align-items:center}
+.meal h4{margin:0;font-size:15px}
+.meal ul{list-style:none;padding:0;margin:10px 0 12px;display:flex;flex-wrap:wrap;gap:6px}
+.meal li{background:var(--app);border-radius:10px;padding:6px 10px;font-size:13px}
+.meal li:first-child{background:var(--butter-soft);font-weight:700}
+.meal .foot{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--sub)}
+.like{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px}
+.like.on{border-color:var(--coral);color:var(--coral);background:var(--coral-soft)}
+.lot{display:block}
+.lot .top{display:flex;justify-content:space-between;align-items:baseline}
+.lot .num{font-family:var(--display);font-size:20px}
+.lot .num small{font-family:var(--body);font-size:12px;color:var(--sub)}
+.lot.sel{box-shadow:inset 0 0 0 2px var(--primary)}
+.bar{height:8px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;border-radius:9px}
+.spots{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin:12px 0 10px}
+.spot{aspect-ratio:1/1.5;border-radius:6px;background:var(--line);display:grid;place-items:center;font-size:12px}
+.spot.free{background:var(--mint)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--sub)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+
+/* forms */
+.field{margin-bottom:14px}
+.field label,.flabel{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.input,textarea{width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:12px 14px;font:inherit;font-size:14px}
+textarea{min-height:96px;resize:none}
+.input:focus,textarea:focus{outline:none;border-color:var(--primary)}
+.switch{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:14px}
+.tg{width:48px;height:28px;border-radius:999px;border:0;background:var(--line);position:relative;transition:background .2s}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tg[aria-pressed="true"]{background:var(--mint)}
+.tg[aria-pressed="true"]::after{transform:translateX(20px)}
+.alert{background:var(--coral-soft);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.alert .t{font-weight:700;font-size:14px;color:var(--coral)}
+.alert .m{font-size:12px;color:var(--sub);margin-top:2px;line-height:1.4}
+.call{flex:none;border:0;background:var(--coral);color:#fff;border-radius:12px;padding:10px 12px;font-weight:700;font-size:13px}
+.callsheet{position:absolute;inset:0;background:rgba(20,22,40,.55);display:flex;align-items:flex-end;z-index:6}
+.callsheet[hidden]{display:none}
+.cs-inner{background:var(--surface);width:100%;border-radius:26px 26px 0 0;padding:26px 20px 30px;text-align:center}
+.cs-num{font-family:var(--display);font-size:36px;color:var(--coral);margin-bottom:8px}
+.cs-inner .btn{margin-top:16px}
+.attach{border:1.5px dashed var(--line);background:transparent;border-radius:14px;padding:14px;width:100%;color:var(--sub);font-size:13px;margin-bottom:14px}
+.status{margin-left:auto;flex:none}
+.done-view{text-align:center;padding:30px 10px}
+.done-view svg{width:130px;height:130px}
+.done-view h2{font-family:var(--display);font-weight:400;font-size:24px;margin:10px 0 8px}
+.done-view .no{display:inline-block;background:var(--surface);border-radius:12px;padding:8px 14px;font-weight:700;margin:12px 0 24px;font-size:14px}
+
+.toast{position:absolute;left:50%;bottom:92px;transform:translate(-50%,12px);background:var(--ink);color:var(--surface);padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;white-space:nowrap;z-index:5}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* 발표에서 크게 볼 때(?wide): 폰 틀 없이 화면 가로 전체를 앱으로 채움 */
+.wide body{background:var(--app)}
+.wide .stage{padding:0}
+.wide .phone{width:100%;max-width:none;height:100%;border:0;border-radius:0;box-shadow:none}
+.wide .statusbar{display:none}
+.wide .grid{grid-template-columns:repeat(8,1fr)}
+.wide .hero h2{max-width:none}
+
+@media (prefers-reduced-motion: reduce){
+  .screen.active,.hero .mascot{animation:none}
+  .tg,.tg::after,.toast,.tab .ic{transition:none}
+}
+</style>
+<script>if (new URLSearchParams(location.search).has('wide')) document.documentElement.classList.add('wide');
+if (window.parent !== window) document.documentElement.classList.add('embed');</script>
+<style>
+/* 발표 안에 들어가 있을 때는 발표와 같은 노랑 커서 */
+.embed, .embed *{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'><path d='M5 5v20l6-6 4 9 4-2-4-9h8z' fill='%2334E0FF'/><path d='M2 2v20l6-6 4 9 4-2-4-9h8z' fill='%23FCEE0A' stroke='%23021A1E' stroke-width='1.5'/></svg>") 2 2, auto !important}
+.embed button, .embed button *{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'><path d='M5 5v20l6-6 4 9 4-2-4-9h8z' fill='%23FF4FA3'/><path d='M2 2v20l6-6 4 9 4-2-4-9h8z' fill='%23FCEE0A' stroke='%23021A1E' stroke-width='1.5'/></svg>") 2 2, pointer !important}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="statusbar" aria-hidden="true"><span>9:41</span><span class="sig">●●●● 5G ▮</span></div>
+
+    <header class="appbar" id="appbar"></header>
+
+    <main class="screens">
+      <!-- 홈 -->
+      <section class="screen" data-screen="home" aria-label="홈">
+        <div class="hero">
+          <small>물리치료과 1학년</small>
+          <h2>오늘도 학교 생활, 같이 해봐요!</h2>
+          <span class="next" id="heroNext"></span>
+          <div class="mascot" data-mascot></div>
+        </div>
+
+        <div class="grid">
+          <button class="feat" data-go="notice"><span class="ic c1">📢</span>학과 공고</button>
+          <button class="feat" data-go="schedule"><span class="ic c2">📅</span>일정</button>
+          <button class="feat" data-go="campus" data-sub="meal"><span class="ic c3">🍱</span>오늘의 학식</button>
+          <button class="feat" data-go="recruit"><span class="ic c1">🤝</span>스터디/동아리</button>
+          <button class="feat" data-go="campus" data-sub="parking"><span class="ic c3">🚗</span>주차 자리</button>
+          <button class="feat" data-go="campus" data-sub="complaint"><span class="ic c2">💬</span>불편사항</button>
+          <button class="feat" data-go="report"><span class="ic c4">🚨</span>신고</button>
+          <button class="feat" data-toast="분실물 센터는 다음 업데이트에서 만나요"><span class="ic c2">🎒</span>분실물</button>
+        </div>
+
+        <div class="sec"><h3>새로 올라온 공고</h3><button class="more" data-go="notice">전체 보기</button></div>
+        <div id="homeNotices"></div>
+
+        <div class="sec"><h3>다가오는 일정</h3><button class="more" data-go="schedule">달력 보기</button></div>
+        <div id="homeEvents"></div>
+
+        <div class="sec"><h3>지금 학교는</h3></div>
+        <div class="duo">
+          <button class="mini" data-go="campus" data-sub="meal">
+            <div class="lbl">🍱 오늘의 학식</div>
+            <div class="big">제육볶음 정식</div>
+            <div class="s">학생식당 A, 5,000원</div>
+          </button>
+          <button class="mini parking" data-go="campus" data-sub="parking">
+            <div class="lbl">🚗 지금 빈 자리</div>
+            <div class="big" id="homeFree">42자리</div>
+            <div class="s">체육관 옆이 제일 여유 있어요</div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 학과 공고 -->
+      <section class="screen" data-screen="notice" aria-label="학과 공고">
+        <div class="chips" id="deptChips"></div>
+        <div id="noticeList"></div>
+      </section>
+
+      <!-- 일정 -->
+      <section class="screen" data-screen="schedule" aria-label="일정">
+        <div class="cal">
+          <div class="calhead">
+            <button id="prevM" aria-label="이전 달">‹</button>
+            <b id="calTitle"></b>
+            <button id="nextM" aria-label="다음 달">›</button>
+          </div>
+          <div class="week"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+          <div class="days" id="calDays"></div>
+        </div>
+        <div class="sec"><h3 id="selTitle"></h3></div>
+        <div class="evlist" id="evList"></div>
+      </section>
+
+      <!-- 구인 -->
+      <section class="screen" data-screen="recruit" aria-label="스터디 동아리 구인">
+        <div class="seg" id="recruitSeg">
+          <button data-rt="study" class="on">스터디</button>
+          <button data-rt="club">동아리</button>
+        </div>
+        <div id="recruitList"></div>
+        <div style="height:56px"></div>
+      </section>
+
+      <!-- 학생 편의 -->
+      <section class="screen" data-screen="campus" aria-label="학생 편의">
+        <div class="seg" id="campusSeg">
+          <button data-ct="meal" class="on">오늘의 학식</button>
+          <button data-ct="parking">주차 자리</button>
+          <button data-ct="complaint">불편사항</button>
+        </div>
+        <div id="campusBody"></div>
+      </section>
+
+      <!-- 신고 -->
+      <section class="screen" data-screen="report" aria-label="신고하기">
+        <div id="reportForm">
+          <div class="alert">
+            <div class="grow">
+              <div class="t">지금 위험한 상황인가요?</div>
+              <div class="m">급할 때는 앱 신고보다 112가 먼저예요</div>
+            </div>
+            <button class="call" data-call>112 전화</button>
+          </div>
+          <div class="field">
+            <span class="flabel">어떤 일인가요?</span>
+            <div class="chips" id="reportChips" style="flex-wrap:wrap"></div>
+          </div>
+          <div class="field">
+            <label for="rPlace">어디서 있었나요?</label>
+            <input class="input" id="rPlace" placeholder="예: 보건관 2층 복도">
+          </div>
+          <div class="field">
+            <label for="rText">무슨 일이 있었는지 알려주세요</label>
+            <textarea id="rText" placeholder="언제, 누가, 어떤 행동을 했는지 적어주세요"></textarea>
+          </div>
+          <button class="attach" data-toast="사진 첨부는 시연 버전에서 지원하지 않아요">📷 사진이나 영상 첨부하기</button>
+          <div class="switch">
+            <span>익명으로 신고하기</span>
+            <button class="tg" id="anon" aria-pressed="true" aria-label="익명 신고"></button>
+          </div>
+          <button class="btn danger" id="reportSubmit">신고 접수하기</button>
+          <p class="hint" style="margin-top:12px">접수된 신고는 학생처와 학생인권센터에서 확인해요. 익명 신고도 신고자 보호 원칙에 따라 처리됩니다.</p>
+        </div>
+        <div class="done-view" id="reportDone" hidden>
+          <div data-mascot></div>
+          <h2>신고가 접수됐어요</h2>
+          <p class="hint">학생처에서 확인한 뒤 학생도 알림으로 처리 결과를 알려드릴게요.</p>
+          <div class="no" id="reportNo"></div>
+          <button class="btn" data-go="home">홈으로</button>
+        </div>
+      </section>
+
+      <button class="fab" id="fab" data-toast="모집글 쓰기는 시연 버전에서 지원하지 않아요">＋ 모집글 쓰기</button>
+    </main>
+
+    <nav class="tabbar" id="tabbar">
+      <button class="tab" data-go="home"><span class="ic">🏠</span>홈</button>
+      <button class="tab" data-go="notice"><span class="ic">📢</span>공고</button>
+      <button class="tab" data-go="schedule"><span class="ic">📅</span>일정</button>
+      <button class="tab" data-go="recruit"><span class="ic">🤝</span>구인</button>
+      <button class="tab" data-go="campus"><span class="ic">🍱</span>편의</button>
+    </nav>
+
+    <div class="callsheet" id="callSheet" hidden>
+      <div class="cs-inner" role="dialog" aria-label="112 전화 연결">
+        <div class="cs-num">📞 112</div>
+        <p class="hint">실제 앱에서는 여기서 바로 112로 전화가 연결돼요.<br>지금은 시연 버전이라 전화는 걸리지 않아요.</p>
+        <button class="btn" data-closecall>돌아가기</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const MASCOT = `<svg viewBox="0 0 120 120" aria-hidden="true">
+  <ellipse cx="60" cy="113" rx="30" ry="4.5" fill="rgba(0,0,0,.13)"/>
+  <path d="M20 74c0-26 18-44 40-44s40 18 40 44c0 22-18 35-40 35S20 96 20 74z" fill="#FFD64F"/>
+  <path d="M38 34v10c0 7 44 7 44 0V34l-22 8z" fill="#262A4F"/>
+  <path d="M60 14l40 14-40 14-40-14z" fill="#262A4F"/>
+  <path d="M96 29v19" stroke="#262A4F" stroke-width="2.5"/>
+  <circle cx="96" cy="50" r="4.5" fill="#F24E4E"/>
+  <ellipse cx="46" cy="72" rx="4.5" ry="6" fill="#262A4F"/>
+  <ellipse cx="74" cy="72" rx="4.5" ry="6" fill="#262A4F"/>
+  <ellipse cx="36" cy="84" rx="7" ry="4.5" fill="#FF9C9C" opacity=".85"/>
+  <ellipse cx="84" cy="84" rx="7" ry="4.5" fill="#FF9C9C" opacity=".85"/>
+  <path d="M54 84q6 6 12 0" stroke="#262A4F" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>`;
+document.querySelectorAll('[data-mascot]').forEach(el => el.innerHTML = MASCOT);
+
+/* ---------- 데이터 ---------- */
+const NOTICES = [
+  {dept:'물리치료과', tag:'필독', c:'coral', title:'임상실습 오리엔테이션 안내', date:'10.24', isNew:true, body:'다음 주 수요일 오후 2시, 보건관 대강의실에서 진행합니다. 실습복과 명찰을 꼭 챙겨 오세요. 불참 시 실습 배정에서 제외될 수 있어요.'},
+  {dept:'학생처', tag:'장학', c:'butter', title:'교내 근로장학생 추가 모집', date:'10.23', isNew:true, body:'도서관, 학생식당, 행정실에서 근로장학생을 추가로 모집합니다. 이번 주 금요일까지 학생처 홈페이지에서 신청하세요.'},
+  {dept:'물리치료과', tag:'학사', c:'', title:'해부학 실습 조 편성 결과', date:'10.22', isNew:false, body:'해부학 실습 조 편성 결과가 나왔어요. 조별 실습 시간과 실습실 위치는 첨부 파일에서 확인하세요.'},
+  {dept:'간호학과', tag:'행사', c:'mint', title:'선배와 함께하는 진로 토크', date:'10.21', isNew:false, body:'현직 간호사 선배 3명이 병원 생활과 국가고시 준비 이야기를 들려줍니다. 간식이 준비되어 있어요.'},
+  {dept:'컴퓨터공학과', tag:'모집', c:'mint', title:'캡스톤 디자인 팀원 매칭 데이', date:'10.20', isNew:false, body:'팀을 아직 못 구한 학생들을 위한 매칭 데이를 엽니다. 공학관 1층 로비에서 만나요.'},
+  {dept:'학생처', tag:'안내', c:'gray', title:'시험 기간 중앙도서관 24시간 개방', date:'10.19', isNew:false, body:'기말고사 2주 전부터 중앙도서관 열람실을 24시간 개방합니다. 학생증을 꼭 지참하세요.'},
+  {dept:'물리치료과', tag:'안내', c:'gray', title:'물리치료 학술제 참가 신청', date:'10.17', isNew:false, body:'학술제 포스터 발표 참가 팀을 모집합니다. 1학년도 참여할 수 있어요. 학과 사무실에 신청서를 내 주세요.'}
+];
+const DEPTS = ['전체','물리치료과','간호학과','컴퓨터공학과','학생처'];
+
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const addDays = n => { const d = new Date(TODAY); d.setDate(d.getDate()+n); return d; };
+const ymd = d => `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+const EVCOLOR = {시험:'var(--coral)', 학과:'var(--primary)', 학사:'#E0A800', 행사:'var(--mint)', 개인:'var(--sub)'};
+const EVENTS = [
+  [-3,'동아리 박람회','행사','학생회관 앞 광장'],
+  [0,'해부학 쪽지시험','시험','보건관 302호, 10:30'],
+  [1,'물리치료과 학생회의','학과','보건관 세미나실, 18:00'],
+  [3,'생리학 스터디 모임','개인','중앙도서관 그룹스터디룸'],
+  [5,'수강 정정 마감','학사','종합정보시스템에서 신청'],
+  [8,'물리치료과 MT','학과','1박 2일, 버스 09:00 출발'],
+  [12,'교내 장학금 신청 마감','학사','학생처 홈페이지'],
+  [15,'대학 축제 1일차','행사','대운동장'],
+  [16,'대학 축제 2일차','행사','대운동장'],
+  [21,'생리학 과제 제출','시험','LMS 업로드, 23:59까지']
+].map(([o,t,type,where]) => ({date:addDays(o), t, type, where}));
+
+const RECRUIT = {
+  study:[
+    {tag:'전공', title:'생리학 같이 버텨요 스터디', who:'물리치료과 1학년', when:'매주 화, 목 저녁 7시', where:'중앙도서관 그룹스터디룸', cur:3, max:5},
+    {tag:'어학', title:'토익 900 목표 아침 스터디', who:'전 학과', when:'평일 아침 8시', where:'학생회관 2층 라운지', cur:4, max:6},
+    {tag:'전공', title:'해부학 근육 암기 퀴즈방', who:'보건계열', when:'매주 수 점심', where:'보건관 1층', cur:5, max:5}
+  ],
+  club:[
+    {tag:'취미', title:'보드게임 동아리 다이스', who:'누구나', when:'매주 금 저녁', where:'학생회관 301호', cur:18, max:25},
+    {tag:'음악', title:'밴드 동아리 소리울 보컬 모집', who:'오디션 있음', when:'매주 월, 수 연습', where:'예술관 지하 연습실', cur:6, max:7},
+    {tag:'봉사', title:'봉사 동아리 손길 신입 모집', who:'누구나', when:'격주 토요일 오전', where:'지역 복지관', cur:12, max:20}
+  ]
+};
+const MEALS = [
+  {where:'학생식당 A', kind:'한식', time:'11:30 ~ 13:30', price:'5,000원', menu:['제육볶음','잡곡밥','어묵국','콩나물무침','배추김치'], likes:24},
+  {where:'학생식당 B', kind:'일품', time:'11:00 ~ 14:00', price:'5,500원', menu:['치즈돈까스','크림수프','양배추샐러드','단무지'], likes:31},
+  {where:'교직원식당', kind:'정식', time:'11:30 ~ 13:00', price:'6,500원', menu:['고등어구이','현미밥','된장찌개','시금치나물','깍두기'], likes:9}
+];
+const LOTS = [
+  {name:'학생회관 주차장', free:14, total:40},
+  {name:'본관 앞', free:3, total:24},
+  {name:'도서관 뒤', free:0, total:24},
+  {name:'체육관 옆', free:25, total:48}
+];
+const COMPLAINTS = [
+  {cat:'시설', text:'보건관 3층 화장실 핸드드라이어가 고장 났어요', status:'처리 완료', c:'mint'},
+  {cat:'행정', text:'학생증 재발급이 너무 오래 걸려요', status:'처리 중', c:'butter'}
+];
+const REPORT_TYPES = ['도난','폭력/위협','성희롱/성폭력','괴롭힘','시설 파손','기타'];
+
+const S = {dept:'전체', open:-1, month:new Date(TODAY.getFullYear(), TODAY.getMonth(), 1), sel:new Date(TODAY),
+  rt:'study', applied:{}, ct:'meal', liked:{}, lot:0, ccat:'시설', rtype:null, anon:true, stack:[]};
+
+/* ---------- 공통 ---------- */
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+const dday = d => { const n = Math.round((d - TODAY)/86400000); return n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}`; };
+const md = d => `${d.getMonth()+1}월 ${d.getDate()}일`;
+const WD = ['일','월','화','수','목','금','토'];
+
+/* ---------- 앱바 / 이동 ---------- */
+const TITLES = {notice:'학과 공고', schedule:'일정', recruit:'스터디/동아리 구인', campus:'학생 편의', report:'신고하기'};
+const TAB_OF = {home:'home', notice:'notice', schedule:'schedule', recruit:'recruit', campus:'campus', report:'home'};
+let current = 'home';
+
+function renderAppbar(){
+  const bar = $('#appbar');
+  if (current === 'home'){
+    bar.innerHTML = `<div class="logo">${MASCOT}<b>학생도</b></div>
+      <button class="iconbtn" data-toast="새 알림 2개: 임상실습 OT, 근로장학 모집" aria-label="알림">🔔<span class="badge"></span></button>
+      <button class="iconbtn" data-go="report" aria-label="신고하기">🚨</button>`;
+  } else {
+    bar.innerHTML = `<button class="iconbtn back" data-back aria-label="뒤로">‹</button><h1>${TITLES[current]}</h1>`;
+  }
+}
+
+function go(name, sub, fromBack){
+  if (!TITLES[name] && name !== 'home') name = 'home';
+  if (!fromBack && name !== current) S.stack.push(current);
+  if (name === 'home') S.stack = [];
+  current = name;
+  if (name === 'campus' && sub) S.ct = sub;
+  if (name === 'report'){ $('#reportForm').hidden = false; $('#reportDone').hidden = true; }
+  document.querySelectorAll('.screen').forEach(s => {
+    const on = s.dataset.screen === name;
+    s.classList.toggle('active', on);
+    if (on) s.scrollTop = 0;
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.go === TAB_OF[name]));
+  $('#fab').classList.toggle('show', name === 'recruit');
+  renderAppbar();
+  if (name === 'campus') renderCampus();
+  try { history.replaceState(null, '', '#' + (name === 'campus' ? S.ct : name)); } catch(e){}
+}
+
+/* ---------- 홈 ---------- */
+function renderHome(){
+  const upcoming = EVENTS.filter(e => e.date >= TODAY).slice(0, 2);
+  const first = upcoming[0];
+  $('#heroNext').textContent = first ? `📌 ${dday(first.date)} ${first.t}` : '📌 오늘은 일정이 없어요';
+  $('#homeNotices').innerHTML = NOTICES.filter(n => n.isNew).map(n => `
+    <button class="row" data-go="notice" data-openid="${NOTICES.indexOf(n)}">
+      <span class="tag ${n.c}">${n.tag}</span>
+      <div class="grow"><div class="t">${n.title}<span class="newdot"></span></div><div class="m">${n.dept}, ${n.date}</div></div>
+    </button>`).join('');
+  $('#homeEvents').innerHTML = upcoming.map(e => `
+    <button class="row" data-go="schedule" data-day="${ymd(e.date)}">
+      <span class="dday">${dday(e.date).replace('D-DAY','오늘')}</span>
+      <div class="grow"><div class="t">${e.t}</div><div class="m">${md(e.date)} (${WD[e.date.getDay()]}), ${e.where}</div></div>
+    </button>`).join('');
+  $('#homeFree').textContent = LOTS.reduce((a, l) => a + l.free, 0) + '자리';
+}
+
+/* ---------- 공고 ---------- */
+function renderNotices(){
+  $('#deptChips').innerHTML = DEPTS.map(d => `<button class="chip ${S.dept===d?'on':''}" data-dept="${d}">${d}</button>`).join('');
+  const list = NOTICES.map((n,i) => ({...n, i})).filter(n => S.dept === '전체' || n.dept === S.dept);
+  $('#noticeList').innerHTML = list.length ? list.map(n => `
+    <button class="row notice ${S.open===n.i?'open':''}" data-notice="${n.i}" aria-expanded="${S.open===n.i}">
+      <div class="head"><span class="tag ${n.c}">${n.tag}</span><span class="m" style="margin:0">${n.dept}</span><span class="date">${n.date}</span></div>
+      <div class="t">${n.title}${n.isNew?'<span class="newdot"></span>':''}</div>
+      <div class="body">${n.body}</div>
+    </button>`).join('') : `<p class="hint">이 학과에 올라온 공고가 아직 없어요.</p>`;
+}
+
+/* ---------- 일정 ---------- */
+function renderCal(){
+  const m = S.month, y = m.getFullYear(), mo = m.getMonth();
+  $('#calTitle').textContent = `${y}년 ${mo+1}월`;
+  const start = new Date(y, mo, 1).getDay(), last = new Date(y, mo+1, 0).getDate();
+  let html = '';
+  for (let i = 0; i < start; i++) html += '<span></span>';
+  for (let d = 1; d <= last; d++){
+    const date = new Date(y, mo, d), key = ymd(date);
+    const ev = EVENTS.find(e => ymd(e.date) === key);
+    const cls = ['d', date.getDay()===0?'sun':'', key===ymd(TODAY)?'today':'', key===ymd(S.sel)?'sel':''].join(' ');
+    html += `<button class="${cls}" data-day="${key}" aria-label="${mo+1}월 ${d}일${ev?', 일정 있음':''}">${d}${ev?`<i class="dot" style="background:${EVCOLOR[ev.type]}"></i>`:''}</button>`;
+  }
+  $('#calDays').innerHTML = html;
+  const sel = S.sel, evs = EVENTS.filter(e => ymd(e.date) === ymd(sel));
+  $('#selTitle').textContent = `${md(sel)} (${WD[sel.getDay()]})`;
+  $('#evList').innerHTML = evs.length ? evs.map(e => `
+    <div class="row" style="border-left-color:${EVCOLOR[e.type]}">
+      <div class="grow"><div class="t">${e.t}</div><div class="m">${e.where}</div></div>
+      <span class="tag gray">${e.type}</span>
+    </div>`).join('') : `<p class="hint">이날은 일정이 없어요. 점이 찍힌 날짜를 눌러 보세요.</p>`;
+}
+
+/* ---------- 구인 ---------- */
+function renderRecruit(){
+  document.querySelectorAll('#recruitSeg button').forEach(b => b.classList.toggle('on', b.dataset.rt === S.rt));
+  $('#recruitList').innerHTML = RECRUIT[S.rt].map((r,i) => {
+    const key = S.rt + i, applied = S.applied[key], cur = r.cur + (applied?1:0), full = r.cur >= r.max;
+    return `<div class="card">
+      <div class="rc-top"><span class="tag ${S.rt==='study'?'':'mint'}">${r.tag}</span><span class="m" style="font-size:12px;color:var(--sub)">${r.who}</span></div>
+      <div class="rc-title">${r.title}</div>
+      <div class="rc-meta">🕒 ${r.when}<br>📍 ${r.where}</div>
+      <div class="meter"><i style="width:${Math.min(100, cur/r.max*100)}%"></i></div>
+      <div class="rc-count">${cur} / ${r.max}명 ${full?'(모집 마감)':''}</div>
+      <button class="btn ${full&&!applied?'off':''} ${applied?'done':''}" data-apply="${key}" ${full&&!applied?'disabled':''}>
+        ${applied?'✓ 신청 완료':full?'모집 마감':'참여 신청하기'}</button>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 학생 편의 ---------- */
+function spotsFor(i){
+  const l = LOTS[i], arr = Array(l.total).fill(false);
+  let seed = (i+1)*97, placed = 0;
+  while (placed < l.free){ seed = (seed*31 + 7) % 1009; const k = seed % l.total; if (!arr[k]){ arr[k] = true; placed++; } }
+  return arr;
+}
+function renderCampus(){
+  document.querySelectorAll('#campusSeg button').forEach(b => b.classList.toggle('on', b.dataset.ct === S.ct));
+  const box = $('#campusBody');
+  if (S.ct === 'meal'){
+    box.innerHTML = `<p class="hint" style="margin:0 2px 10px">${md(TODAY)} (${WD[TODAY.getDay()]}) 점심 메뉴예요</p>` + MEALS.map((m,i) => `
+      <div class="card meal">
+        <div class="where"><h4>${m.where}</h4><span class="tag butter">${m.kind}</span></div>
+        <ul>${m.menu.map(x => `<li>${x}</li>`).join('')}</ul>
+        <div class="foot"><span>${m.time}, ${m.price}</span>
+          <button class="like ${S.liked[i]?'on':''}" data-like="${i}">♥ 맛있어요 ${m.likes + (S.liked[i]?1:0)}</button></div>
+      </div>`).join('');
+  } else if (S.ct === 'parking'){
+    const l = LOTS[S.lot];
+    box.innerHTML = LOTS.map((x,i) => {
+      const r = x.free/x.total, col = x.free === 0 ? 'var(--coral)' : r < .2 ? 'var(--butter)' : 'var(--mint)';
+      return `<button class="row lot ${S.lot===i?'sel':''}" data-lot="${i}">
+        <div class="top"><span class="t">${x.name}</span><span class="num" style="color:${col}">${x.free===0?'만차':x.free}<small>${x.free===0?'':` / ${x.total}자리`}</small></span></div>
+        <div class="bar"><i style="width:${r*100}%;background:${col}"></i></div></button>`;
+    }).join('') + `
+      <div class="card" style="margin-top:6px">
+        <div class="t" style="font-weight:700">${l.name} 자리 보기</div>
+        <div class="spots">${spotsFor(S.lot).map(f => `<span class="spot ${f?'free':''}"></span>`).join('')}</div>
+        <div class="legend"><span><i style="background:var(--mint)"></i>빈 자리</span><span><i style="background:var(--line)"></i>주차 중</span><span style="margin-left:auto">1분 전 갱신</span></div>
+      </div>`;
+  } else {
+    box.innerHTML = `
+      <div class="card">
+        <span class="flabel">어떤 불편함인가요?</span>
+        <div class="chips">${['시설','수업','행정','식당','기타'].map(c => `<button class="chip ${S.ccat===c?'on':''}" data-ccat="${c}">${c}</button>`).join('')}</div>
+        <textarea id="cText" placeholder="불편했던 점을 자유롭게 적어주세요. 학생회와 학교에 그대로 전달돼요."></textarea>
+        <button class="btn" id="cSubmit" style="margin-top:10px">불편사항 보내기</button>
+      </div>
+      <div class="sec"><h3>내가 보낸 불편사항</h3></div>
+      ${COMPLAINTS.map(c => `<div class="row"><span class="tag gray">${c.cat}</span><div class="grow"><div class="t">${c.text}</div></div><span class="tag ${c.c} status">${c.status}</span></div>`).join('')}`;
+  }
+}
+
+/* ---------- 신고 ---------- */
+function renderReportChips(){
+  $('#reportChips').innerHTML = REPORT_TYPES.map(t => `<button class="chip ${S.rtype===t?'on':''}" data-rtype="${t}">${t}</button>`).join('');
+}
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('button, [data-go]');
+  if (!el) return;
+  const d = el.dataset;
+  if ('back' in d){ go(S.stack.pop() || 'home', null, true); return; }
+  if ('call' in d){ $('#callSheet').hidden = false; return; }
+  if ('closecall' in d){ $('#callSheet').hidden = true; return; }
+  if (d.toast){ toast(d.toast); return; }
+  if (d.go){
+    if (d.openid){ S.dept = '전체'; S.open = +d.openid; renderNotices(); }
+    if (d.day && d.go === 'schedule'){ const [y,m,dd] = d.day.split('-').map(Number); S.sel = new Date(y,m-1,dd); S.month = new Date(y,m-1,1); renderCal(); }
+    go(d.go, d.sub); return;
+  }
+  if (d.dept){ S.dept = d.dept; S.open = -1; renderNotices(); return; }
+  if (d.notice !== undefined){ S.open = S.open === +d.notice ? -1 : +d.notice; renderNotices(); return; }
+  if (d.day){ const [y,m,dd] = d.day.split('-').map(Number); S.sel = new Date(y,m-1,dd); renderCal(); return; }
+  if (d.rt){ S.rt = d.rt; renderRecruit(); return; }
+  if (d.apply){
+    if (S.applied[d.apply]){ delete S.applied[d.apply]; toast('신청을 취소했어요'); }
+    else { S.applied[d.apply] = true; toast('참여 신청 완료! 모집자에게 알림을 보냈어요'); }
+    renderRecruit(); return;
+  }
+  if (d.ct){ S.ct = d.ct; go('campus', d.ct, true); return; }
+  if (d.like){ S.liked[d.like] = !S.liked[d.like]; renderCampus(); return; }
+  if (d.lot){ S.lot = +d.lot; renderCampus(); return; }
+  if (d.ccat){ S.ccat = d.ccat; const txt = $('#cText').value; renderCampus(); $('#cText').value = txt; return; }
+  if (el.id === 'cSubmit'){
+    const txt = $('#cText').value.trim();
+    if (!txt){ toast('내용을 한 줄 이상 적어주세요'); $('#cText').focus(); return; }
+    COMPLAINTS.unshift({cat:S.ccat, text:txt, status:'접수됨', c:''});
+    renderCampus(); toast('불편사항을 보냈어요'); return;
+  }
+  if (d.rtype){ S.rtype = d.rtype; renderReportChips(); return; }
+  if (el.id === 'anon'){ S.anon = !S.anon; el.setAttribute('aria-pressed', S.anon); toast(S.anon ? '익명으로 신고해요' : '실명으로 신고해요'); return; }
+  if (el.id === 'reportSubmit'){
+    if (!S.rtype){ toast('어떤 일인지 먼저 골라주세요'); return; }
+    if (!$('#rText').value.trim()){ toast('무슨 일이 있었는지 적어주세요'); $('#rText').focus(); return; }
+    $('#reportNo').textContent = '접수번호 ' + (TODAY.getMonth()+1).toString().padStart(2,'0') + TODAY.getDate().toString().padStart(2,'0') + '-' + Math.floor(1000 + Math.random()*9000);
+    $('#reportForm').hidden = true; $('#reportDone').hidden = false;
+    S.rtype = null; $('#rPlace').value = ''; $('#rText').value = ''; renderReportChips();
+    return;
+  }
+});
+$('#callSheet').addEventListener('click', e => { if (e.target.id === 'callSheet') e.currentTarget.hidden = true; });
+$('#prevM').addEventListener('click', () => { S.month = new Date(S.month.getFullYear(), S.month.getMonth()-1, 1); renderCal(); });
+$('#nextM').addEventListener('click', () => { S.month = new Date(S.month.getFullYear(), S.month.getMonth()+1, 1); renderCal(); });
+
+/* ---------- 시작 ---------- */
+renderHome(); renderNotices(); renderCal(); renderRecruit(); renderReportChips();
+const h = (location.hash || '').slice(1);
+if (['meal','parking','complaint'].includes(h)) go('campus', h);
+else go(['notice','schedule','recruit','campus','report'].includes(h) ? h : 'home');
+
+/* ---------- 발표 슬라이드 안에 들어가 있을 때: 넘기기 키는 발표 화면으로 넘김 ---------- */
+if (window.parent !== window){
+  const DECK_KEYS = ['ArrowRight','ArrowLeft','ArrowUp','ArrowDown',' ','PageDown','PageUp','Home','End','Escape'];
+  addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('input, textarea')) return;
+    if (!DECK_KEYS.includes(e.key) && !/^(Key[OGHFMI]|Slash|Digit0)$/.test(e.code)) return;
+    e.preventDefault();
+    if (document.activeElement) document.activeElement.blur();
+    parent.postMessage({type:'deck-key', key:e.key, code:e.code}, '*');
+  });
+}
+</script>
+</body>
+</html>
